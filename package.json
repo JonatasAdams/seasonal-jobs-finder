@@ -1,10 +1,15 @@
 {
   "name": "seasonal-jobs-finder",
-  "version": "1.0.0",
-  "description": "Busca vagas H-2A na Flórida sem exigência de experiência via API do SeasonalJobs.dol.gov",
+  "version": "2.0.0",
+  "description": "Busca vagas H-2A na Flórida sem exigência de experiência e com FULL CERTIFICATION, e envia candidatura por e-mail com currículo anexo",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "enviar": "node enviar.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "nodemailer": "^6.9.13"
   },
   "engines": {
     "node": ">=18"

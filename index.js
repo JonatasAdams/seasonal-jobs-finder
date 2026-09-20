@@ -1,6 +1,6 @@
 // index.js
-// Consome a API do SeasonalJobs.dol.gov e filtra vagas H-2A na Flórida
-// que não exigem experiência prévia.
+// Consome a API do SeasonalJobs.dol.gov, filtra vagas que não exigem experiência
+// e mantém apenas as que estão com status FULL CERTIFICATION no flag.dol.gov.
 
 const fs = require('fs');
 const path = require('path');
@@ -13,7 +13,7 @@ const REQUIRED_CASE_STATUS = 'FULL CERTIFICATION';
 // ----- Parâmetros de busca (ajuste aqui conforme necessário) -----
 const config = {
   visaClass: 'H-2A',
-  state: 'NEBRASKA',
+  state: 'FLORIDA',
   experienceRequired: false, // false = sem experiência exigida
   top: 50,                   // tamanho de cada página buscada (o loop soma isso automaticamente)
 };
@@ -83,17 +83,6 @@ function mapJob(job) {
   };
 }
 
-function toCSV(rows) {
-  if (rows.length === 0) return '';
-  const headers = Object.keys(rows[0]);
-  const escape = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
-  const lines = [
-    headers.join(','),
-    ...rows.map((row) => headers.map((h) => escape(row[h])).join(',')),
-  ];
-  return lines.join('\n');
-}
-
 function chunk(array, size) {
   const chunks = [];
   for (let i = 0; i < array.length; i += size) {
@@ -155,6 +144,17 @@ async function fetchAllJobs({ top, filter }) {
   return { total, jobs: allJobs };
 }
 
+function toCSV(rows) {
+  if (rows.length === 0) return '';
+  const headers = Object.keys(rows[0]);
+  const escape = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+  const lines = [
+    headers.join(','),
+    ...rows.map((row) => headers.map((h) => escape(row[h])).join(',')),
+  ];
+  return lines.join('\n');
+}
+
 async function main() {
   const filter = buildFilter(config);
 
@@ -173,13 +173,17 @@ async function main() {
   }
 
   const approved = jobs.filter((job) => job.caseStatus === REQUIRED_CASE_STATUS);
+  const comEmail = approved.filter((job) => job.email);
 
-  console.log(`\nVagas com status "${REQUIRED_CASE_STATUS}": ${approved.length}/${jobs.length}\n`);
+  console.log(`\nVagas com status "${REQUIRED_CASE_STATUS}": ${approved.length}/${jobs.length}`);
+  console.log(`Dessas, com e-mail cadastrado: ${comEmail.length}\n`);
   console.table(approved);
 
-  const outPath = path.join(__dirname, 'vagas.csv');
-  fs.writeFileSync(outPath, toCSV(approved), 'utf-8');
-  console.log(`\nArquivo CSV salvo em: ${outPath}`);
+  fs.writeFileSync(path.join(__dirname, `${config.state}.csv`), toCSV(approved), 'utf-8');
+  fs.writeFileSync(path.join(__dirname, `${config.state}.json`), JSON.stringify(approved, null, 2), 'utf-8');
+
+  console.log('\nArquivos salvos: vagas.csv e vagas.json');
+  console.log('Para enviar os e-mails, rode: yarn enviar');
 }
 
 main().catch((err) => {
