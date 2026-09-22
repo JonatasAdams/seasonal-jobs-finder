@@ -9,7 +9,7 @@ const path = require('path');
 const readline = require('readline');
 const nodemailer = require('nodemailer');
 
-const VAGAS_PATH = path.join(__dirname, 'FLORIDA.json');
+const VAGAS_PATH = path.join(__dirname, '[INSIRA AQUI O NOME DO ESTADO].json');
 const TEMPLATES_DIR = path.join(__dirname, 'templates');
 const CURRICULO_PATH = path.join(__dirname, process.env.CURRICULO_FILE || 'curriculo.pdf');
 const ENVIADOS_PATH = path.join(__dirname, 'enviados.json');

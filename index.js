@@ -13,7 +13,7 @@ const REQUIRED_CASE_STATUS = 'FULL CERTIFICATION';
 // ----- Parâmetros de busca (ajuste aqui conforme necessário) -----
 const config = {
   visaClass: 'H-2A',
-  state: 'FLORIDA',
+  state: '[INSIRA AQUI O NOME DO ESTADO]',
   experienceRequired: false, // false = sem experiência exigida
   top: 50,                   // tamanho de cada página buscada (o loop soma isso automaticamente)
 };
