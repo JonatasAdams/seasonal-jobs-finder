@@ -182,7 +182,7 @@ async function main() {
   fs.writeFileSync(path.join(__dirname, `${config.state}.csv`), toCSV(approved), 'utf-8');
   fs.writeFileSync(path.join(__dirname, `${config.state}.json`), JSON.stringify(approved, null, 2), 'utf-8');
 
-  console.log('\nArquivos salvos: vagas.csv e vagas.json');
+  console.log(`\nArquivos salvos: ${config.state}.csv e ${config.state}.json`);
   console.log('Para enviar os e-mails, rode: yarn enviar');
 }
 
