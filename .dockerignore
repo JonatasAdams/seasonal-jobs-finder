@@ -1,0 +1,9 @@
+**
+!Dockerfile
+!package.json
+!package-lock.json
+!server.js
+!index.js
+!enviar.js
+!public/
+!public/**

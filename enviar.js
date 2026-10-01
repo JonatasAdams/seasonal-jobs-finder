@@ -9,17 +9,18 @@ const path = require('path');
 const readline = require('readline');
 const nodemailer = require('nodemailer');
 
-const VAGAS_PATH = path.join(__dirname, '[INSIRA AQUI O NOME DO ESTADO].json');
-const TEMPLATES_DIR = path.join(__dirname, 'templates');
-const CURRICULO_PATH = path.join(__dirname, process.env.CURRICULO_FILE || 'curriculo.pdf');
-const ENVIADOS_PATH = path.join(__dirname, 'enviados.json');
+const DATA_DIR = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : __dirname;
+const VAGAS_PATH = path.join(DATA_DIR, 'TEXAS.json');
+const TEMPLATES_DIR = path.join(DATA_DIR, 'templates');
+const CURRICULO_PATH = path.resolve(DATA_DIR, process.env.CURRICULO_FILE || 'curriculo.pdf');
+const ENVIADOS_PATH = path.join(DATA_DIR, 'enviados.json');
 
 // ---------- utilidades de terminal ----------
 
-const rl = readline.createInterface({
+const rl = require.main === module ? readline.createInterface({
   input: process.stdin,
   output: process.stdout,
-});
+}) : null;
 
 function pergunta(texto) {
   return new Promise((resolve) => rl.question(texto, (resposta) => resolve(resposta.trim())));
@@ -81,7 +82,7 @@ function carregarEnviados() {
   try {
     return JSON.parse(fs.readFileSync(ENVIADOS_PATH, 'utf-8'));
   } catch {
-    return [];
+    throw new Error('Histórico de envios inválido. Corrija enviados.json antes de enviar novamente.');
   }
 }
 
@@ -243,7 +244,9 @@ async function main() {
   rl.close();
 }
 
-main().catch((err) => {
+module.exports = { carregarTemplates, preencherPlaceholders, carregarEnviados, criarTransporter, CURRICULO_PATH };
+
+if (require.main === module) main().catch((err) => {
   console.error('Falhou:', err.message);
   rl.close();
   process.exit(1);

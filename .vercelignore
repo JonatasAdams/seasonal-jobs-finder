@@ -1,0 +1,14 @@
+.env*
+!.env.example
+*.pdf
+*.csv
+TEXAS.json
+vagas.json
+enviados.json*
+.web-*
+templates/
+archive/
+node_modules/
+.git/
+test/
+dist/

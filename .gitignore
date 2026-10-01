@@ -6,3 +6,11 @@ enviados.json
 Jonatas_Adams_Resume.pdf
 archive
 templates
+.web-cache.json
+.web-cache.json.tmp
+.web-send-journal.json
+.web-send-journal.json.tmp
+enviados.json.tmp
+
+dist/
+.vercel/

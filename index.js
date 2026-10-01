@@ -13,7 +13,7 @@ const REQUIRED_CASE_STATUS = 'FULL CERTIFICATION';
 // ----- Parâmetros de busca (ajuste aqui conforme necessário) -----
 const config = {
   visaClass: 'H-2A',
-  state: '[INSIRA AQUI O NOME DO ESTADO]',
+  state: 'TEXAS',
   experienceRequired: false, // false = sem experiência exigida
   top: 50,                   // tamanho de cada página buscada (o loop soma isso automaticamente)
 };
@@ -46,6 +46,7 @@ async function fetchJobs({ top, skip, filter }) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(30000),
   });
 
   if (!res.ok) {
@@ -71,6 +72,10 @@ function formatPhone(job) {
 
 function mapJob(job) {
   return {
+    active: job.active,
+    beginDate: job.begin_date,
+    endDate: job.end_date,
+    payUnit: job.pay_range_desc || '',
     titulo: job.job_title,
     empresa: job.employer_business_name,
     caseNumber: job.case_number,
@@ -96,6 +101,7 @@ async function fetchCaseStatuses(caseNumbers) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(caseNumbers),
+    signal: AbortSignal.timeout(30000),
   });
 
   if (!res.ok) {
@@ -186,7 +192,9 @@ async function main() {
   console.log('Para enviar os e-mails, rode: yarn enviar');
 }
 
-main().catch((err) => {
+module.exports = { buildFilter, fetchJobs, fetchAllJobs, fetchAllCaseStatuses, mapJob, toCSV };
+
+if (require.main === module) main().catch((err) => {
   console.error('Falhou:', err.message);
   process.exit(1);
 });

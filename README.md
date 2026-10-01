@@ -1,5 +1,53 @@
 # Seasonal Jobs Finder
 
+## Aplicativo para celular e hospedagem
+
+O painel também é um PWA instalável. Consulte `MOBILE.md` para uso no celular e `VERCEL.md` para hospedar na Vercel com Neon, funcionando mesmo com o PC desligado.
+Esta versão usa Node.js 24 e `npm install`/`package-lock.json`. `npm run build` gera os assets públicos; `npm test` verifica os fluxos sem enviar e-mails reais.
+Após atualizar o backend, encerre o processo antigo com Ctrl+C e execute `npm run web` novamente.
+
+## Painel web
+
+Na pasta do projeto, execute `npm run web` (ou `yarn web`) e abra http://127.0.0.1:3000.
+Não há build nem novas dependências. Os comandos `npm start` e `npm run enviar` continuam disponíveis.
+
+O painel permite consultar por estado, visto e exigência de experiência; pesquisar nos resultados;
+filtrar contatos válidos e vagas ainda não contatadas; exportar CSV; consultar o histórico;
+selecionar um template; editar assunto e corpo; copiar ou confirmar o envio com currículo.
+Os rascunhos são mantidos enquanto a página está aberta. Recarregar a página descarta as edições.
+
+Na primeira abertura, carrega `TEXAS.json`. Depois, usa a última consulta salva em `.web-cache.json`.
+Dados carregados do disco são identificados como antigos. O botão **Consultar vagas** consulta as duas APIs,
+mantendo apenas vagas ativas, visíveis e com `FULL CERTIFICATION`. O cache do painel não altera os arquivos
+JSON/CSV usados pelo console. Use **Exportar CSV** para baixar os resultados filtrados do painel.
+
+O envio usa os templates existentes, `CURRICULO_FILE` e as configurações SMTP do `.env`.
+Antes de enviar, o servidor confere novamente atividade, certificação e contato da vaga.
+O destinatário vem da vaga e não pode ser substituído pelo navegador. E-mails como `N/A` são rejeitados.
+Credenciais, currículo e arquivos privados não são servidos pelo HTTP. O servidor escuta apenas em loopback.
+
+O histórico `enviados.json` é compartilhado com o console. Use somente um processo de envio por vez
+(painel ou console). Não execute várias instâncias do painel em portas diferentes para enviar simultaneamente.
+Um histórico inválido bloqueia os envios. O painel registra a tentativa em `.web-send-journal.json`
+antes de chamar o SMTP; após sucesso, grava o histórico e remove a tentativa pendente.
+Em caso de timeout ou interrupção, a vaga permanece bloqueada para evitar duplicação.
+Confira o provedor de e-mail e, com o servidor parado, reconcilie o registro pendente com `enviados.json`;
+remova a entrada pendente apenas após confirmar o resultado. Aceitação pelo SMTP não garante entrega na caixa de entrada.
+
+### Verificação
+
+Execute `npm test`: testes HTTP com APIs e SMTP simulados, sem envio de mensagens reais.
+Cobrem filtros, confirmação, duplicação, vaga inativa, timeout, histórico corrompido e acesso indevido.
+
+### Arquitetura
+
+- `server.js`: servidor HTTP local e integração com consulta, templates e SMTP.
+- `public/`: interface responsiva em HTML, CSS e JavaScript, sem framework.
+- `index.js`: funções de consulta reutilizáveis, com timeout por requisição.
+- `enviar.js`: utilitários de templates e SMTP reutilizáveis; o terminal só abre quando executado diretamente.
+
+## Uso pelo console
+
 Script Node.js que consome a API do [seasonaljobs.dol.gov](https://seasonaljobs.dol.gov), filtra vagas H-2A na Flórida que **não exigem experiência prévia**, mantém apenas as que estão com status **FULL CERTIFICATION** no `flag.dol.gov`, e permite enviar a candidatura por e-mail com o currículo anexo.
 
 ## Requisitos
